@@ -1,34 +1,38 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webdriver import WebDriver
+from pages.base_page import BasePage
+from locators import home_page_locators
+from locators import base_page_locators
+import allure
 
 
-class HomePage:
-    question = [By.CLASS_NAME, 'accordion__item']
-    panel = [By.CLASS_NAME, 'accordion__panel']
-    paragraph = [By.TAG_NAME, 'p']
-    order_button = [By.XPATH, '//div[contains(@class, "Home_FinishButton__1_cWm")]//button[contains(@class, "Button_Button__ra12g")]']
+class HomePage(BasePage):
 
-    def __init__(self, driver: WebDriver):
-        self.driver = driver
-
+    @allure.step
     def get_question(self, index: int):
-        return self.driver.find_elements(*self.question)[index]
+        return self.find_elements(home_page_locators.question)[index]
     
+    @allure.step
+    def get_answer(self, index: int):
+        question = self.get_question(index)
+        return question.find_element(*home_page_locators.answer)
+    
+    @allure.step
     def is_answer_hidden(self, index: int):
         question = self.get_question(index)
-        panel = question.find_element(*self.panel)
+        panel = question.find_element(*home_page_locators.answer_container)
         return panel.get_attribute('hidden') is not None
-
-    def check_answer_text(self, index: int, expected_text: str):
-        question = self.get_question(index)
-        paragraph = question.find_element(*self.paragraph)
-        return expected_text == paragraph.text
     
-    def check_question(self, index: int, expected_text: str):
-        self.get_question(index).click()
-        return not self.is_answer_hidden(index) and self.check_answer_text(index, expected_text)
-    
-    def click_order_button(self):
-        button = self.driver.find_element(*self.order_button)
-        self.driver.execute_script("arguments[0].scrollIntoView();", button)
+    @allure.step
+    def click_top_order_button(self):
+        button = self.find_element(home_page_locators.order_button)
+        self.execute_script("arguments[0].scrollIntoView();", button)
         button.click()
+
+    @allure.step
+    def click_bottom_order_button(self):
+        button = self.find_element(home_page_locators.order_button)
+        self.execute_script("arguments[0].scrollIntoView();", button)
+        button.click()
+
+    @allure.step
+    def click_logo_yandex(self):
+        self.click_element(base_page_locators.logo_yandex)

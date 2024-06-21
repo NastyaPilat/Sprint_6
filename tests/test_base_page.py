@@ -1,31 +1,24 @@
-from selenium import webdriver
-from pages.base_page import BasePage
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.remote.webdriver import WebDriver
+from pages.home_page import HomePage
+from pages.order_page import OrderPage
+import data
+import allure
 
 
 class TestBasePage:
-    driver = None
 
-    @classmethod
-    def setup_class(cls):
-        cls.driver = webdriver.Chrome()
+    @allure.title('test_logo_yandex')
+    def test_logo_yandex(self, driver: WebDriver):
+        driver.get(data.HOME_PAGE_URL)
+        home_page = HomePage(driver)
+        home_page.click_logo_yandex()
+        home_page.wait_for_number_of_windows_to_be(2)
+        home_page.switch_to_window(1)
+        assert data.DZEN_PAGE_URL == driver.current_url
 
-    def test_logo_yandex(self):
-        self.driver.get("https://qa-scooter.praktikum-services.ru/")
-        base_page = BasePage(self.driver)
-        base_page.click_logo_yandex()
-        WebDriverWait(self.driver, 3).until(EC.number_of_windows_to_be(2))
-        self.driver.switch_to.window(self.driver.window_handles[1])
-        assert "https://dzen.ru/?yredirect=true" == self.driver.current_url
-
-    def test_logo_scooter(self):
-        self.driver.get("https://qa-scooter.praktikum-services.ru/order")
-        base_page = BasePage(self.driver)
-        base_page.click_logo_scooter()
-        WebDriverWait(self.driver, 3).until(EC.url_changes)
-        assert "https://qa-scooter.praktikum-services.ru/" == self.driver.current_url
-
-    @classmethod
-    def teardown_class(cls):
-        cls.driver.quit() 
+    @allure.title('test_logo_scooter')
+    def test_logo_scooter(self, driver: WebDriver):
+        driver.get(data.ORDER_PAGE_URL)
+        order_page = OrderPage(driver)
+        order_page.click_logo_scooter()
+        assert data.HOME_PAGE_URL == driver.current_url
